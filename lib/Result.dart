@@ -1,106 +1,82 @@
-// import 'package:flutter/material.dart';
-// import 'Person.dart';
+import 'package:flutter/material.dart';
+import 'Person.dart';
 
-// class ResultScreen extends StatelessWidget {
-//   Map<String, Person> result;
+class ResultScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> result;
 
-//   ResultScreen({super.key});
+  ResultScreen({required this.result, Key? key}) : super(key: key);
 
-//   //helper function to sort the transactions by balance
-//   List<Person> helperSort(List<Person> arr) {
-//     arr.sort(
-//       (a, b) {
-//         return a.balance.compareTo(b.balance);
-//       },
-//     );
-//     return arr;
-//   }
+  List<Person> filterAndCreatePersons() {
+    List<Person> personNames = result
+        .where((p) => p['balance'] != 0.0)
+        .map((p) => Person(balance: p['balance'], name: p['name']))
+        .toList();
+    return personNames;
+  }
 
-//   List<String> generateResult(List<Person> arr) {
-//     int n = arr.length;
-//     // ignore: non_constant_identifier_names
-//     List<String> results_list = [];
-//     while (n > 0) {
-//       n = arr.length;
-//       arr = helperSort(arr);
-//       //if 1 and n-1 same
-//       if ((arr[0].balance + arr[n - 1].balance) == 0) {
-//         results_list.add(
-//             '${arr[0].name} pays ${arr[n - 1].name} Rs ${arr[n - 1].balance}');
-//         arr.removeAt(0);
-//         n = arr.length;
-//         arr.removeAt(n - 1);
-//         n = arr.length;
-//       } else if ((arr[0].balance + arr[n - 1].balance) > 0) {
-//         results_list.add(
-//             '${arr[0].name} pays ${arr[n - 1].name} Rs ${(arr[0].balance.abs())}');
-//         arr[n - 1].balance = arr[n - 1].balance + arr[0].balance;
-//         arr.removeAt(0);
-//         n = arr.length;
-//       } else {
-//         results_list.add(
-//             '${arr[0].name} pays ${arr[n - 1].name} Rs ${(arr[n - 1].balance)}');
-//         arr[0].balance = arr[n - 1].balance + arr[0].balance;
-//         arr.removeAt(n - 1);
-//         n = arr.length;
-//       }
-//     }
-//     return results_list;
-//   }
+  List<String> generateResult(List<Person> persons) {
+    List<String> results = [];
+    persons.sort((a, b) => a.balance.compareTo(b.balance));
+    while (persons.length > 1) {
+      Person person1 = persons.first;
+      Person person2 = persons.last;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     List<Person> person_names = [];
-//     List<String> results;
-//     List<double> temp_balance = [];
+      if (person1.balance + person2.balance == 0) {
+        results
+            .add('${person1.name} pays ${person2.name} Rs ${person2.balance}');
+        persons.removeAt(0);
+        persons.removeLast();
+      } else if (person1.balance + person2.balance > 0) {
+        results.add(
+            '${person1.name} pays ${person2.name} Rs ${person1.balance.abs()}');
+        persons.last.balance += person1.balance;
+        persons.removeAt(0);
+      } else {
+        results
+            .add('${person1.name} pays ${person2.name} Rs ${person2.balance}');
+        person1.balance += person2.balance;
+        persons.removeLast();
+      }
+    }
+    return results;
+  }
 
-//     result.forEach((key, value) {
-//       person_names.add(value);
-//       temp_balance.add(value.balance);
-//     });
-//     print(person_names.length);
+  @override
+  Widget build(BuildContext context) {
+    List<Person> personNames = filterAndCreatePersons();
+    List<String> results = generateResult(personNames);
 
-//     String temp = "";
-//     for (Person p in person_names) {
-//       temp += ("${p.name}  ${p.balance}    ");
-//     }
-
-//     results = generateResult(person_names);
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         automaticallyImplyLeading: false,
-//         title: const Text('Result'),
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: ListView.builder(
-//               itemCount: results.length,
-//               itemBuilder: (context, index) {
-//                 return Container(
-//                     padding: const EdgeInsets.all(10),
-//                     child: Text(results[index]));
-//               },
-//             ),
-//           ),
-//           const Spacer(),
-//           ElevatedButton(
-//             style: ButtonStyle(
-//                 padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
-//                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
-//             onPressed: () {
-//               result.forEach((key, value) {
-//                 value.balance = temp_balance.removeAt(0);
-//               });
-//               Navigator.of(context).pop();
-//             },
-//             child: const Text(
-//               'Back',
-//             ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Result'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Text(results[index]),
+                );
+              },
+            ),
+          ),
+          const Spacer(),
+          ElevatedButton(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Back'),
+          ),
+        ],
+      ),
+    );
+  }
+}

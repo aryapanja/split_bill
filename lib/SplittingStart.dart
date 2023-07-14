@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:split_bill/sql_helper.dart';
 import 'package:split_bill/transaction.dart';
+import 'Result.dart';
 import 'addTransaction/new_transaction.dart';
 
 class SplittingStart extends StatefulWidget {
@@ -43,7 +44,7 @@ class _SplittingStartState extends State<SplittingStart> {
   void _openNewTransactionOverlay() {
     List<Map<String, dynamic>> arr = widget.groupedPeople;
     showModalBottomSheet(
-      isScrollControlled: true,
+      //isScrollControlled: true,
       context: context,
       builder: (ctx) {
         return NewTransaction(
@@ -114,11 +115,6 @@ class _SplittingStartState extends State<SplittingStart> {
       }
     }
 
-    // for (Map<String, dynamic> p in widget.groupedPeople) {
-    //   print(p['balance']);
-    //   print(p['name']);
-    // }
-
     await SQLHelper.createTransaction(
         t.name, t.pay, convertSelectedPeople(t.selected));
 
@@ -141,7 +137,7 @@ class _SplittingStartState extends State<SplittingStart> {
         itemCount: transactionlist.length,
         itemBuilder: (context, index) => Card(
           color: Colors.blue.shade400,
-          margin: const EdgeInsets.all(15),
+          margin: const EdgeInsets.all(3),
           child: ListTile(
             title: Text(transactionlist[index]['name']),
             subtitle: Column(children: [
@@ -178,6 +174,7 @@ class _SplittingStartState extends State<SplittingStart> {
           Container(
             margin: const EdgeInsets.all(10),
             height: 100,
+            width:double.infinity,
             decoration: BoxDecoration(
               border: Border.all(
                   color: const Color.fromARGB(118, 87, 132, 208), width: 2),
@@ -238,19 +235,15 @@ class _SplittingStartState extends State<SplittingStart> {
                       backgroundColor:
                           MaterialStateProperty.all<Color>(Colors.red)),
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => ResultScreen(),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ResultScreen(result: widget.groupedPeople),
+                      ),
+                    );
                   },
                   child: const Text("Settle up"),
                 ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Show Transactions'),
               ),
             ],
           ),
