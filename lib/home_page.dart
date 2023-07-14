@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //variable declarations
   List<Map<String, dynamic>> splitPeople = [];
-  Widget? mainContent;
+  late Widget mainContent;
 
   @override
   void initState() {
@@ -34,9 +34,8 @@ class _HomePageState extends State<HomePage> {
 
   void clearDatabase() {
     SQLHelper.removeAllRowsFromTable();
-    setState(() {
-      refreshPersons();
-    });
+
+    refreshPersons();
   }
 
   //function to open the modal sheet to add new member to the group
@@ -96,12 +95,12 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           Expanded(
-            child: mainContent!,
+            child: mainContent,
           ),
           Container(
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
             child: Visibility(
-              visible: splitPeople.length >= 2 ? true : false,
+              visible: splitPeople.length >= 2,
               child: ElevatedButton(
                 style: ButtonStyle(
                     backgroundColor:

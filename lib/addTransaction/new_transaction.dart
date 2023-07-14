@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:multiselect/multiselect.dart';
-import 'package:split_bill/Person.dart';
+//import 'package:multiselect/multiselect.dart';
 //import 'package:split_bill/addTransaction/transaction.dart';
 
 import '../transaction.dart';
@@ -125,24 +124,13 @@ class _NewTransactionState extends State<NewTransaction> {
               )
             ],
           ),
-          /* //not working
-          DropDownMultiSelect(
-            options: const ['a', 'b', 'c', 'd'],
-            selectedValues: selectedPeople,
-            onChanged: (x) {
-              setState(() {
-                selectedPeople = x;
-              });
-            },
-            whenEmpty: 'Select people to split bill',
-          )*/
           MultiSelectDialogField(
             items:
                 totalPeople.map((e) => MultiSelectItem(e, e['name'])).toList(),
+            listType: MultiSelectListType.CHIP,
             onConfirm: (values) {
               setState(() {
                 selectedPeople = values;
-                print(selectedPeople.length);
               });
             },
             buttonText: const Text("Select person"),

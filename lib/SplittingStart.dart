@@ -1,13 +1,7 @@
-//import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:split_bill/Result.dart';
-//import 'package:split_bill/home_page.dart';
 import 'package:split_bill/sql_helper.dart';
-//import 'package:split_bill/addTransaction/transaction.dart';
 import 'package:split_bill/transaction.dart';
-//import 'Person.dart';
 import 'addTransaction/new_transaction.dart';
-//import 'addTransaction/transaction_list.dart';
 
 class SplittingStart extends StatefulWidget {
   List<Map<String, dynamic>> groupedPeople = [];
@@ -29,7 +23,7 @@ class _SplittingStartState extends State<SplittingStart> {
   initState() {
     super.initState();
     refreshTransactions();
-    refreshPersons();
+    //refreshPersons();
   }
 
   void refreshTransactions() async {
@@ -207,21 +201,27 @@ class _SplittingStartState extends State<SplittingStart> {
                         MaterialStateProperty.all<Color>(Colors.green),
                   ),
                   onPressed: () {
-                    // widget.onCreateNewGroup();
-                    // Navigator.of(context).pop();
                     showDialog(
                       context: context,
                       builder: (ctx) {
                         return AlertDialog(
-                          title: const Text('Invalid Input'),
+                          title: const Text('**Attention**'),
                           content: const Text(
-                              'Please make sure all the correct values have been entered'),
+                              'This will delete your group and all transaction details'),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(ctx);
                               },
-                              child: const Text('Okay'),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                widget.onCreateNewGroup();
+                                Navigator.of(ctx).pop();
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Confirm'),
                             )
                           ],
                         );
