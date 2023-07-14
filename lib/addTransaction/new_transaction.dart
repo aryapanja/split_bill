@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:multiselect/multiselect.dart';
 //import 'package:multiselect/multiselect.dart';
 //import 'package:split_bill/addTransaction/transaction.dart';
 
@@ -129,9 +130,7 @@ class _NewTransactionState extends State<NewTransaction> {
                 totalPeople.map((e) => MultiSelectItem(e, e['name'])).toList(),
             listType: MultiSelectListType.CHIP,
             onConfirm: (values) {
-              setState(() {
-                selectedPeople = values;
-              });
+              selectedPeople = values;
             },
             buttonText: const Text("Select person"),
           ),
