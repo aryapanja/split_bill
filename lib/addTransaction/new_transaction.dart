@@ -1,34 +1,34 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:multiselect/multiselect.dart';
-//import 'package:multiselect/multiselect.dart';
-//import 'package:split_bill/addTransaction/transaction.dart';
-
 import '../transaction.dart';
 
 class NewTransaction extends StatefulWidget {
-  //variable declaration
-  List<Map<String, dynamic>> totalPeople = [];
-  late void Function(Transactions t) onAddTransaction;
+  final List<Map<String, dynamic>> totalPeople;
+  final void Function(Transactions t) onAddTransaction;
 
-  // NewTransaction({super.key});
+  NewTransaction({
+    required this.totalPeople,
+    required this.onAddTransaction,
+    Key? key,
+  }) : super(key: key);
 
-  NewTransaction(
-      {required this.totalPeople, required this.onAddTransaction, super.key});
   @override
-  State<NewTransaction> createState() {
-    return _NewTransactionState();
-  }
+  State<NewTransaction> createState() => _NewTransactionState();
 }
 
 class _NewTransactionState extends State<NewTransaction> {
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
-  List<Map<String, dynamic>> selectedPeople = [];
-  String select = "";
-  //String selectedName = "Puneet";
+  List<String> temp = [];
+  List<String> tempSelect = [];
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
 
   void submitTransactionData() {
     final amt = double.tryParse(_amountController.text);
@@ -36,7 +36,7 @@ class _NewTransactionState extends State<NewTransaction> {
     final isValidAmt = amt == null || amt <= 0;
     if (_nameController.text.trim().isEmpty ||
         isValidAmt ||
-        selectedPeople.isEmpty) {
+        tempSelect.isEmpty) {
       showDialog(
         context: context,
         builder: (ctx) {
@@ -46,11 +46,9 @@ class _NewTransactionState extends State<NewTransaction> {
                 'Please make sure all the correct values have been entered'),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                },
+                onPressed: () => Navigator.pop(ctx),
                 child: const Text('Okay'),
-              )
+              ),
             ],
           );
         },
@@ -58,27 +56,30 @@ class _NewTransactionState extends State<NewTransaction> {
       return;
     }
 
+    List<Map<String, dynamic>> getPeople(List<String> arr) {
+      List<Map<String, dynamic>> selectedPeople = [];
+      for (Map<String, dynamic> p in widget.totalPeople) {
+        if (arr.contains(p['name'])) {
+          selectedPeople.add(p);
+        }
+      }
+      return selectedPeople;
+    }
+
     widget.onAddTransaction(
       Transactions(
         name: _nameController.text,
         pay: amt,
-        selected: selectedPeople,
+        selected: getPeople(tempSelect),
       ),
     );
     Navigator.pop(context);
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    //fetching Person list from NewTransaction class
     List<Map<String, dynamic>> totalPeople = widget.totalPeople;
+    temp = totalPeople.map<String>((p) => p['name'] as String).toList();
 
     return Padding(
       padding: const EdgeInsets.all(15.0),
@@ -86,51 +87,36 @@ class _NewTransactionState extends State<NewTransaction> {
         children: [
           Row(
             children: [
-              // DropdownButton(
-              //   value: arr[0],
-              //   hint: const Text("Choose payee"),
-              //   items: arr
-              //       .map(
-              //         (e) => DropdownMenuItem(child: Text(e)),
-              //       )
-              //       .toList(),
-              //   onChanged: (value) {
-              //     setState(() {
-              //       selectedName = value;
-              //     });
-              //   },
-              // ),
               Expanded(
                 child: TextField(
                   controller: _nameController,
                   maxLength: 20,
                   keyboardType: TextInputType.text,
                   decoration: const InputDecoration(
-                    label: Text('Payee'),
+                    labelText: 'Payee',
                   ),
                 ),
               ),
-              const SizedBox(
-                width: 16,
-              ),
+              const SizedBox(width: 16),
               Expanded(
                 child: TextField(
                   controller: _amountController,
                   maxLength: 10,
                   decoration: const InputDecoration(
                     prefixText: 'Rs',
-                    label: Text("Amount"),
+                    labelText: "Amount",
                   ),
                 ),
-              )
+              ),
             ],
           ),
           MultiSelectDialogField(
-            items:
-                totalPeople.map((e) => MultiSelectItem(e, e['name'])).toList(),
+            items: temp.map((e) => MultiSelectItem(e, e)).toList(),
             listType: MultiSelectListType.CHIP,
             onConfirm: (values) {
-              selectedPeople = values;
+              setState(() {
+                tempSelect = values;
+              });
             },
             buttonText: const Text("Select person"),
           ),
@@ -140,23 +126,21 @@ class _NewTransactionState extends State<NewTransaction> {
               const Spacer(),
               TextButton(
                 onPressed: () {
-                  selectedPeople.clear();
+                  setState(() {
+                    tempSelect.clear();
+                  });
                   Navigator.pop(context);
                 },
                 child: const Text('Cancel'),
               ),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: submitTransactionData,
                 child: const Text('Save Transaction'),
               ),
             ],
           ),
-          const SizedBox(
-            height: 10,
-          )
+          const SizedBox(height: 10),
         ],
       ),
     );
