@@ -21,7 +21,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    refreshPersons();
+    setState(() {
+      refreshPersons();
+    });
   }
 
   //set the splitPeople list with 'Person' data from database

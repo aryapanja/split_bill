@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:split_bill/home_page.dart';
 import 'package:split_bill/sql_helper.dart';
 import 'package:split_bill/transaction.dart';
 import 'Result.dart';
@@ -128,6 +129,20 @@ class _SplittingStartState extends State<SplittingStart> {
     });
   }
 
+  Future<bool> _onWillPop() async {
+    // Navigator.pushAndRemoveUntil(
+    //     context,
+    //     MaterialPageRoute(builder: (BuildContext context) => const HomePage()),
+    //     (Route<dynamic> route) => route is HomePage);
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (BuildContext context) {
+      return const HomePage();
+    }), (r) {
+      return false;
+    });
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     List<String> summary = createSummary();
@@ -154,104 +169,107 @@ class _SplittingStartState extends State<SplittingStart> {
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        //if there is a previous page, appbar by default creates a 'go back' button. We can disable it by setting the the following to false
-        automaticallyImplyLeading: false,
-        title: const Text("Transactions"),
-        actions: [
-          IconButton(
-            onPressed: _openNewTransactionOverlay,
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: mainContent,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          //if there is a previous page, appbar by default creates a 'go back' button. We can disable it by setting the the following to false
+          automaticallyImplyLeading: false,
+          title: const Text("Transactions"),
+          actions: [
+            IconButton(
+              onPressed: _openNewTransactionOverlay,
+              icon: const Icon(Icons.add),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.all(10),
-            height: 100,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color: const Color.fromARGB(118, 87, 132, 208), width: 2),
-            ),
-            child: summary.isEmpty
-                ? const Text('Nothing to settle')
-                : ListView.builder(
-                    itemCount: summary.length,
-                    itemBuilder: (context, index) => Text(summary[index]),
-                  ),
-          ),
-          //buttons in the floor
-          Row(
-            children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(0.1),
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) {
-                        return AlertDialog(
-                          title: const Text('**Attention**'),
-                          content: const Text(
-                              'This will delete your group and all transaction details'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(ctx);
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                widget.onCreateNewGroup();
-                                Navigator.of(ctx).pop();
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Confirm'),
-                            )
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Text("Create new group"),
-                ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: mainContent,
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  style: ButtonStyle(
+            ),
+            Container(
+              margin: const EdgeInsets.all(10),
+              height: 100,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: const Color.fromARGB(118, 87, 132, 208), width: 2),
+              ),
+              child: summary.isEmpty
+                  ? const Text('Nothing to settle')
+                  : ListView.builder(
+                      itemCount: summary.length,
+                      itemBuilder: (context, index) => Text(summary[index]),
+                    ),
+            ),
+            //buttons in the floor
+            Row(
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(0.1),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.red)),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ResultScreen(result: widget.groupedPeople),
-                      ),
-                    );
-                  },
-                  child: const Text("Settle up"),
+                          MaterialStateProperty.all<Color>(Colors.green),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          return AlertDialog(
+                            title: const Text('**Attention**'),
+                            content: const Text(
+                                'This will delete your group and all transaction details'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  widget.onCreateNewGroup();
+                                  Navigator.of(ctx).pop();
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Confirm'),
+                              )
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: const Text("Create new group"),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.red)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ResultScreen(result: widget.groupedPeople),
+                        ),
+                      );
+                    },
+                    child: const Text("Settle up"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
