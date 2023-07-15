@@ -24,7 +24,10 @@ class _SplittingStartState extends State<SplittingStart> {
   initState() {
     super.initState();
     refreshTransactions();
-    //refreshPersons();
+    setState(() {
+      createSummary();
+      refreshPersons();
+    });
   }
 
   void refreshTransactions() async {
@@ -174,7 +177,7 @@ class _SplittingStartState extends State<SplittingStart> {
           Container(
             margin: const EdgeInsets.all(10),
             height: 100,
-            width:double.infinity,
+            width: double.infinity,
             decoration: BoxDecoration(
               border: Border.all(
                   color: const Color.fromARGB(118, 87, 132, 208), width: 2),
@@ -238,7 +241,8 @@ class _SplittingStartState extends State<SplittingStart> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ResultScreen(result: widget.groupedPeople),
+                        builder: (context) =>
+                            ResultScreen(result: widget.groupedPeople),
                       ),
                     );
                   },

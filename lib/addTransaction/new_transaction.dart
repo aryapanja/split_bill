@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:selectable_list/selectable_list.dart';
 import '../transaction.dart';
 
 class NewTransaction extends StatefulWidget {
   final List<Map<String, dynamic>> totalPeople;
   final void Function(Transactions t) onAddTransaction;
 
-  NewTransaction({
+  const NewTransaction({
     required this.totalPeople,
     required this.onAddTransaction,
     Key? key,
@@ -22,6 +22,7 @@ class _NewTransactionState extends State<NewTransaction> {
   final _amountController = TextEditingController();
   List<String> temp = [];
   List<String> tempSelect = [];
+  String? payee;
 
   @override
   void dispose() {
@@ -34,7 +35,7 @@ class _NewTransactionState extends State<NewTransaction> {
     final amt = double.tryParse(_amountController.text);
 
     final isValidAmt = amt == null || amt <= 0;
-    if (_nameController.text.trim().isEmpty ||
+    if (
         isValidAmt ||
         tempSelect.isEmpty) {
       showDialog(
@@ -68,7 +69,7 @@ class _NewTransactionState extends State<NewTransaction> {
 
     widget.onAddTransaction(
       Transactions(
-        name: _nameController.text,
+        name: payee!,
         pay: amt,
         selected: getPeople(tempSelect),
       ),
@@ -87,19 +88,32 @@ class _NewTransactionState extends State<NewTransaction> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _nameController,
-                  maxLength: 20,
-                  keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                    labelText: 'Payee',
-                  ),
-                ),
+              DropdownButton(
+                hint: const Text('Select payer'),
+                value: payee,
+                items: temp
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(
+                          e,
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) {
+                    return;
+                  }
+                  setState(() {
+                    payee = value.toString();
+                  });
+                },
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 60),
               Expanded(
                 child: TextField(
+                  keyboardType: TextInputType.number,
                   controller: _amountController,
                   maxLength: 10,
                   decoration: const InputDecoration(
@@ -118,7 +132,9 @@ class _NewTransactionState extends State<NewTransaction> {
                 tempSelect = values;
               });
             },
-            buttonText: const Text("Select person"),
+            buttonText: tempSelect.isEmpty
+                ? const Text("Select your friends for split up")
+                : const Text("Selected people"),
           ),
           const Spacer(),
           Row(

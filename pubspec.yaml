@@ -38,6 +38,7 @@ dependencies:
   sqflite: ^2.2.8+4
   path: ^1.8.2
   multiselect: ^0.1.0
+  selectable_list: ^0.1.1
 
 dev_dependencies:
   flutter_test:
