@@ -39,6 +39,11 @@ dependencies:
   path: ^1.8.2
   multiselect: ^0.1.0
   selectable_list: ^0.1.1
+  flutter_native_splash: ^2.2.4
+
+flutter_native_splash:
+  android: true
+  background_image: "assets/splash.png"
 
 dev_dependencies:
   flutter_test:

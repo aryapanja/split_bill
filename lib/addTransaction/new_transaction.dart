@@ -35,9 +35,7 @@ class _NewTransactionState extends State<NewTransaction> {
     final amt = double.tryParse(_amountController.text);
 
     final isValidAmt = amt == null || amt <= 0;
-    if (
-        isValidAmt ||
-        tempSelect.isEmpty) {
+    if (isValidAmt || tempSelect.isEmpty) {
       showDialog(
         context: context,
         builder: (ctx) {
@@ -89,7 +87,13 @@ class _NewTransactionState extends State<NewTransaction> {
           Row(
             children: [
               DropdownButton(
-                hint: const Text('Select payer'),
+                hint: Row(
+                  children: const [
+                    Icon(Icons.person_2), // Add the desired icon
+                    SizedBox(width: 12),
+                    Text('Select payer'),
+                  ],
+                ),
                 value: payee,
                 items: temp
                     .map(

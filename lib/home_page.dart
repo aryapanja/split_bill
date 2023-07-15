@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:split_bill/sql_helper.dart';
 import 'Person.dart';
 import 'SplittingStart.dart';
