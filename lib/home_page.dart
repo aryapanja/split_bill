@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:split_bill/pie_chart/pie_view.dart';
 import 'package:split_bill/sql_helper.dart';
 import 'Person.dart';
 import 'SplittingStart.dart';
@@ -17,12 +18,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //variable declarations
   List<Map<String, dynamic>> splitPeople = [];
+  List<Map<String, dynamic>> transactionlist = [];
   late Widget mainContent;
 
   @override
   void initState() {
     super.initState();
     setState(() {
+      refreshTransactions();
       refreshPersons();
     });
   }
@@ -37,8 +40,20 @@ class _HomePageState extends State<HomePage> {
 
   void clearDatabase() {
     SQLHelper.removeAllRowsFromTable();
-
     refreshPersons();
+  }
+
+  //functin to add a 'Person' member to the database
+  void _addPerson(Person p) async {
+    await SQLHelper.createItem(p.name, p.balance);
+    refreshPersons();
+  }
+
+  void refreshTransactions() async {
+    final data = await SQLHelper.getTransactions();
+    setState(() {
+      transactionlist = data;
+    });
   }
 
   //function to open the modal sheet to add new member to the group
@@ -52,12 +67,6 @@ class _HomePageState extends State<HomePage> {
         return NewPerson(onAddPerson: _addPerson);
       },
     );
-  }
-
-  //functin to add a 'Person' member to the database
-  void _addPerson(Person p) async {
-    await SQLHelper.createItem(p.name, p.balance);
-    refreshPersons();
   }
 
   @override
@@ -122,6 +131,15 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          TextButton(
+              onPressed: () {
+                refreshTransactions();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => PieView(
+                          transactions: transactionlist,
+                        )));
+              },
+              child: const Text('Show Pie'))
         ],
       ),
     );

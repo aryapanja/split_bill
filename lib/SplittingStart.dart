@@ -82,7 +82,7 @@ class _SplittingStartState extends State<SplittingStart> {
     String s = "";
 
     for (Map<String, dynamic> p in selectedPeople) {
-      s += (p['name'] + " ");
+      s += (p['name'] + ", ");
     }
     return s;
   }
@@ -119,8 +119,8 @@ class _SplittingStartState extends State<SplittingStart> {
       }
     }
 
-    await SQLHelper.createTransaction(
-        t.name, t.pay, convertSelectedPeople(t.selected));
+    await SQLHelper.createTransaction(t.name, t.pay,
+        convertSelectedPeople(t.selected), t.category.toString());
 
     setState(() {
       refreshTransactions();
@@ -164,6 +164,10 @@ class _SplittingStartState extends State<SplittingStart> {
                 height: 2,
               ),
               Text(transactionlist[index]['selected']),
+              const SizedBox(
+                height: 2,
+              ),
+              Text(transactionlist[index]['category']),
             ]),
           ),
         ),
@@ -268,6 +272,14 @@ class _SplittingStartState extends State<SplittingStart> {
                 ),
               ],
             ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home",
+            )
           ],
         ),
       ),

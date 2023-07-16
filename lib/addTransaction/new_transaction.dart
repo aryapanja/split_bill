@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:selectable_list/selectable_list.dart';
 import '../transaction.dart';
 
 class NewTransaction extends StatefulWidget {
@@ -23,6 +22,7 @@ class _NewTransactionState extends State<NewTransaction> {
   List<String> temp = [];
   List<String> tempSelect = [];
   String? payee;
+  Categories _selectedCategory = Categories.miscellaneous;
 
   @override
   void dispose() {
@@ -70,6 +70,7 @@ class _NewTransactionState extends State<NewTransaction> {
         name: payee!,
         pay: amt,
         selected: getPeople(tempSelect),
+        category: _selectedCategory,
       ),
     );
     Navigator.pop(context);
@@ -115,18 +116,39 @@ class _NewTransactionState extends State<NewTransaction> {
                 },
               ),
               const SizedBox(width: 60),
-              Expanded(
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _amountController,
-                  maxLength: 10,
-                  decoration: const InputDecoration(
-                    prefixText: 'Rs',
-                    labelText: "Amount",
-                  ),
-                ),
+              DropdownButton(
+                hint: const Text('Select category'),
+                value: _selectedCategory,
+                icon: const Icon(Icons.category),
+                items: Categories.values
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(
+                          e.name.toUpperCase(),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) {
+                    return;
+                  }
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                },
               ),
             ],
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: _amountController,
+            maxLength: 10,
+            decoration: const InputDecoration(
+              prefixText: 'Rs',
+              labelText: "Amount",
+            ),
           ),
           MultiSelectDialogField(
             items: temp.map((e) => MultiSelectItem(e, e)).toList(),

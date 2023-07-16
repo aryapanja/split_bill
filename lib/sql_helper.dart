@@ -9,7 +9,8 @@ balance DOUBLE)""");
     await database.execute("""CREATE TABLE Transactions(
       name TEXT,
       pay DOUBLE,
-      selected TEXT
+      selected TEXT,
+      category TEXT
     )""");
   }
 
@@ -21,9 +22,9 @@ balance DOUBLE)""");
   }
 
   static Future<int> createTransaction(
-      String name, double pay, String selected) async {
+      String name, double pay, String selected, String category) async {
     final db = await SQLHelper.db();
-    final data = {'name': name, 'pay': pay, 'selected': selected};
+    final data = {'name': name, 'pay': pay, 'selected': selected, 'category': category};
     final id = await db.insert('Transactions', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
