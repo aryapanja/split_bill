@@ -7,10 +7,8 @@ import 'addTransaction/new_transaction.dart';
 
 class SplittingStart extends StatefulWidget {
   List<Map<String, dynamic>> groupedPeople = [];
-  void Function() onCreateNewGroup;
 
-  SplittingStart(
-      {required this.groupedPeople, required this.onCreateNewGroup, super.key});
+  SplittingStart({required this.groupedPeople, super.key});
   @override
   State<SplittingStart> createState() {
     return _SplittingStartState();
@@ -26,7 +24,6 @@ class _SplittingStartState extends State<SplittingStart> {
     super.initState();
     refreshTransactions();
     setState(() {
-      createSummary();
       refreshPersons();
     });
   }
@@ -62,20 +59,6 @@ class _SplittingStartState extends State<SplittingStart> {
   void _updateItem(String name, double balance) async {
     await SQLHelper.updateItem(name, balance);
     refreshPersons();
-  }
-
-  List<String> createSummary() {
-    List<String> summary = [];
-    for (Map<String, dynamic> p in widget.groupedPeople) {
-      if (p['balance'] > 0) {
-        String name = p['name'];
-        summary.add('$name paid Rs ${p['balance']} extra.');
-      } else if (p['balance'] < 0) {
-        String name = p['name'];
-        summary.add('$name owes Rs ${p['balance'].abs()}');
-      }
-    }
-    return summary;
   }
 
   String convertSelectedPeople(List<Map<String, dynamic>> selectedPeople) {
@@ -118,22 +101,17 @@ class _SplittingStartState extends State<SplittingStart> {
         _updateItem(p['name'], temp);
       }
     }
-
-    await SQLHelper.createTransaction(t.name, t.pay,
-        convertSelectedPeople(t.selected), t.category.toString());
+    String temp = t.category.toString().replaceAll('Categories.', '');
+    await SQLHelper.createTransaction(
+        t.name, t.pay, convertSelectedPeople(t.selected), temp);
 
     setState(() {
       refreshTransactions();
       refreshPersons();
-      createSummary();
     });
   }
 
   Future<bool> _onWillPop() async {
-    // Navigator.pushAndRemoveUntil(
-    //     context,
-    //     MaterialPageRoute(builder: (BuildContext context) => const HomePage()),
-    //     (Route<dynamic> route) => route is HomePage);
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (BuildContext context) {
       return const HomePage();
@@ -143,144 +121,212 @@ class _SplittingStartState extends State<SplittingStart> {
     return false;
   }
 
+  String returnAsset(String t) {
+    if (t == "entertainment") {
+      return "assets/entertainment.png";
+    } else if (t == "accomodation") {
+      return "assets/accomodation.png";
+    } else if (t == "travel") {
+      return "assets/travel.jpg";
+    } else if (t == "food") {
+      return "assets/food.png";
+    }
+    return "assets/miscellaneous.png";
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<String> summary = createSummary();
     Widget mainContent = const Center(
-      child: Text("No transactions, start by adding some"),
+      child: Text(
+        "No transactions, start by adding some",
+        style: TextStyle(fontWeight: FontWeight.w500),
+      ),
     );
 
     if (transactionlist.isNotEmpty) {
       mainContent = ListView.builder(
-        itemCount: transactionlist.length,
-        itemBuilder: (context, index) => Card(
-          color: Colors.blue.shade400,
-          margin: const EdgeInsets.all(3),
-          child: ListTile(
-            title: Text(transactionlist[index]['name']),
-            subtitle: Column(children: [
-              Text(transactionlist[index]['pay'].toString()),
-              const SizedBox(
-                height: 2,
-              ),
-              Text(transactionlist[index]['selected']),
-              const SizedBox(
-                height: 2,
-              ),
-              Text(transactionlist[index]['category']),
-            ]),
-          ),
-        ),
-      );
+          itemCount: transactionlist.length,
+          itemBuilder: (context, index) => Card(
+            elevation: 10,
+                margin: const EdgeInsets.fromLTRB(15, 2, 15, 0),
+                color: const Color.fromARGB(236, 255, 255, 255),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          // border: Border.all(
+                          //     color: const Color.fromARGB(255, 0, 0, 0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(
+                                  0, 3), // changes the position of the shadow
+                            ),
+                          ],
+                          image: DecorationImage(
+                            image: AssetImage(
+                              returnAsset(transactionlist[index]['category']),
+                            ),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        flex: 10,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${transactionlist[index]['name']} paid for',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            Text('${transactionlist[index]['selected']}',
+                                style: const TextStyle(fontSize: 10)),
+                            const Divider(
+                              color: Color.fromARGB(145, 0, 0, 0),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 5),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 248, 248, 229),
+                                borderRadius: BorderRadius.circular(5),
+                                // boxShadow: [
+                                //   BoxShadow(
+                                //     color: Colors.grey.withOpacity(0.5),
+                                //     spreadRadius: 1,
+                                //     blurRadius: 12,
+                                //     offset: const Offset(0,
+                                //         3), // changes the position of the shadow
+                                //   ),
+                                // ],
+                              ),
+                              child: Text(transactionlist[index]['category']),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          //color: Colors.amber.shade400,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(20),
+                            right: Radius.circular(0),
+                          ),
+                        ),
+                        child: Text(
+                          'Rs ${transactionlist[index]['pay']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ));
     }
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          //if there is a previous page, appbar by default creates a 'go back' button. We can disable it by setting the the following to false
-          automaticallyImplyLeading: false,
-          title: const Text("Transactions"),
-          actions: [
-            IconButton(
-              onPressed: _openNewTransactionOverlay,
-              icon: const Icon(Icons.add),
-            ),
-          ],
+      child: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/transaction_screen.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: mainContent,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(10),
-              height: 100,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(
-                    color: const Color.fromARGB(118, 87, 132, 208), width: 2),
-              ),
-              child: summary.isEmpty
-                  ? const Text('Nothing to settle')
-                  : ListView.builder(
-                      itemCount: summary.length,
-                      itemBuilder: (context, index) => Text(summary[index]),
-                    ),
-            ),
-            //buttons in the floor
-            Row(
+        child: Scaffold(
+          extendBody: true,
+          backgroundColor: const Color.fromARGB(0, 0, 238, 255),
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(0.1),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.green),
+                const SizedBox(
+                  height: 90,
+                ),
+                Visibility(
+                  visible: transactionlist.isNotEmpty ? true : false,
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+                    child: Text(
+                      'Transactions',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) {
-                          return AlertDialog(
-                            title: const Text('**Attention**'),
-                            content: const Text(
-                                'This will delete your group and all transaction details'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(ctx);
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  widget.onCreateNewGroup();
-                                  Navigator.of(ctx).pop();
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Confirm'),
-                              )
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: const Text("Create new group"),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.red)),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ResultScreen(result: widget.groupedPeople),
-                        ),
-                      );
-                    },
-                    child: const Text("Settle up"),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: mainContent,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home",
-            )
-          ],
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: SizedBox(
+            width: 70,
+            height: 70,
+            child: FittedBox(
+              child: FloatingActionButton(
+                onPressed: _openNewTransactionOverlay,
+                tooltip: 'Add Transaction',
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                child: const Icon(Icons.add, color: Colors.black),
+              ),
+            ),
+          ),
+          bottomNavigationBar: BottomAppBar(
+            elevation: 0,
+            color: const Color.fromARGB(121, 255, 255, 255),
+            shape: const CircularNotchedRectangle(),
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  iconSize: 40,
+                  onPressed: _onWillPop,
+                  icon: const Icon(Icons.home,
+                      color: Color.fromARGB(255, 69, 183, 73)),
+                ),
+                IconButton(
+                  iconSize: 40,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ResultScreen(result: widget.groupedPeople),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.calculate,
+                      color: Color.fromARGB(255, 228, 67, 56)),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

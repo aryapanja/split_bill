@@ -91,56 +91,100 @@ class _HomePageState extends State<HomePage> {
     }
 
     //returning widget
-    return Scaffold(
-      appBar: AppBar(
-        shadowColor: Colors.black,
-        title: const Center(
-          child: Text('SPLIT YOUR BILL'),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/homepage.jpg"),
+          fit: BoxFit.cover,
         ),
-        actions: [
-          IconButton(
-            onPressed: _openAddPersonOverlay,
-            icon: const Icon(Icons.add),
-          )
-        ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: mainContent,
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-            child: Visibility(
-              visible: splitPeople.length >= 2,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SplittingStart(
-                          groupedPeople: splitPeople,
-                          onCreateNewGroup: clearDatabase),
-                    ),
-                  );
-                },
-                child: const Text("Create Group"),
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        body: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 130,
               ),
+              Expanded(
+                child: mainContent,
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: Visibility(
+                  visible: splitPeople.length >= 2,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.green)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SplittingStart(groupedPeople: splitPeople),
+                        ),
+                      );
+                    },
+                    child: const Text("Create Group"),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  refreshTransactions();
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PieView(
+                            transactions: transactionlist,
+                          )));
+                },
+                child: const Text('Show Pie'),
+              ),
+              TextButton(
+                  onPressed: () {
+                    clearDatabase();
+                  },
+                  child: const Text('Delete Group'),
+                ),
+            ],
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: SizedBox(
+          width: 70,
+          height: 70,
+          child: FittedBox(
+            child: FloatingActionButton(
+              onPressed: _openAddPersonOverlay,
+              tooltip: 'Add Transaction',
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+              child: const Icon(Icons.add, color: Colors.black),
             ),
           ),
-          TextButton(
-              onPressed: () {
-                refreshTransactions();
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => PieView(
-                          transactions: transactionlist,
-                        )));
-              },
-              child: const Text('Show Pie'))
-        ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 0,
+          color: const Color.fromARGB(121, 255, 255, 255),
+          shape: const CircularNotchedRectangle(),
+          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                iconSize: 40,
+                onPressed: () {},
+                icon: const Icon(Icons.home,
+                    color: Color.fromARGB(255, 69, 183, 73)),
+              ),
+              IconButton(
+                  iconSize: 40,
+                  onPressed: () {},
+                  icon: const Icon(Icons.calculate,
+                      color: Color.fromARGB(255, 228, 67, 56)),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

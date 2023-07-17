@@ -41,6 +41,7 @@ dependencies:
   selectable_list: ^0.1.1
   flutter_native_splash: ^2.2.4
   pie_chart: ^5.3.2
+  shared_preferences: ^0.5.12+4
 
 flutter_native_splash:
   android: true
@@ -68,9 +69,14 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/accomodation.png
+    - assets/entertainment.png
+    - assets/food.png
+    - assets/miscellaneous.png
+    - assets/travel.jpg
+    - assets/transaction_screen.jpg
+    - assets/homepage.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

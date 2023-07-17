@@ -72,6 +72,17 @@ class _PieViewState extends State<PieView> {
               ),
             ),
           ),
+          const SizedBox(height: 10,),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                  image: AssetImage("assets/entertainment.png"),
+                  fit: BoxFit.fill),
+            ),
+          ),
         ],
       ),
     );
